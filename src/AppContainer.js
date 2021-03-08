@@ -1,10 +1,17 @@
 import React, {useState, useEffect, useRef} from 'react';
 import './App.css';
-import {millisToMinutesAndSeconds, getStandardDeviation, getAverage, getMode, getMedian} from "./utils/index";
+import {millisToMinutesAndSeconds} from "./utils/index";
+import {
+  getStandardDeviationPromise,
+  getAveragePromise,
+  getModePromise,
+  getMedianPromise
+} from './workers/workerPromises';
+
 import {Context} from './utils/context';
 import App from "./components/App";
 
-function usePrevious(value) {
+const usePrevious = (value) => {
   const ref = useRef();
   useEffect(() => {
     ref.current = value;
@@ -26,10 +33,12 @@ const AppContainer = () => {
   const [lostQuotation, setLostQuotation] = useState('');
   const [calculateTime, setCalculateTime] = useState('');
   const [isDataAvailable, setDataAvailable] = useState(false);
+  const [isCalculateProcess, setCalculateProcess] = useState(false);
 
   useEffect(() => {
-    const ws = new WebSocket(webSocketUrl);
+    let ws = null;
     if (isStarted) {
+      ws = new WebSocket(webSocketUrl)
       ws.onopen = () => {
         console.log('opened');
       };
@@ -43,7 +52,9 @@ const AppContainer = () => {
       };
     }
     return () => {
-      ws.close();
+      if (ws !== null) {
+        ws.close();
+      }
     };
   }, [isStarted]);
 
@@ -51,7 +62,7 @@ const AppContainer = () => {
   useEffect(() => {
     if (!current || !prevId) return;
     if (current - prevId > 1) {
-      setLostData(prev => prev + 1)
+      setLostData(prev => prev + (current - prevId - 1))
     }
   }, [current]);
 
@@ -61,24 +72,19 @@ const AppContainer = () => {
       prev[value] = prev[value] ? prev[value] + 1 : 1;
       return prev;
     })
-  }
+  };
 
   const calculateItems = async () => {
-
     if (isStarted && isDataAvailable) {
       const startDate = new Date();
-      const getStandardDeviationPromise = (data) => new Promise((resolve) => resolve(getStandardDeviation(data)))
-      const getAveragePromise = (data) => new Promise((resolve) => resolve(getAverage(data)))
-      const getModePromise = (data) => new Promise((resolve) => resolve(getMode(data)))
-      const getMedianPromise = (data) => new Promise((resolve) => resolve(getMedian(data)))
+      const arr = Object.entries(data);
+
       const [
-        standardDeviationPromiseResult,
-        averagePromiseResult,
-        modePromiseResult,
-        medianPromiseResult] = await Promise.all(
-        [getStandardDeviationPromise(data),
-          getAveragePromise(data),
-          getModePromise(data),
+        standardDeviationPromiseResult, averagePromiseResult,
+        modePromiseResult, medianPromiseResult] = await Promise.all(
+        [getStandardDeviationPromise(arr),
+          getAveragePromise(arr),
+          getModePromise(arr),
           getMedianPromise(data)
         ]);
 
@@ -90,11 +96,12 @@ const AppContainer = () => {
       setMedian(medianPromiseResult);
       setLostQuotation(`${lostData}`);
     }
-  }
+
+  };
 
   const contextData = {
-    isStarted, setStarted, calculateItems, isDataAvailable, average,
-    standardDeviation, mode, median, lostQuotation, calculateTime
+    isStarted, setStarted, calculateItems, isDataAvailable, average, isCalculateProcess,
+    standardDeviation, mode, median, lostQuotation, calculateTime, setCalculateProcess
   }
 
   return (

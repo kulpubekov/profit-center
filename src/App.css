@@ -39,3 +39,14 @@
 
 .custom-field {
   margin-bottom: 15px;}
+
+
+.ping-block{
+  border-top: 1px solid #000;
+  margin-top: 50px;
+  padding-top: 30px;
+}
+
+.ping-block button{
+  margin-left: 15px;
+}
