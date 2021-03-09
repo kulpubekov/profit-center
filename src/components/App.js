@@ -7,7 +7,7 @@ const App = () => {
 
   const context = useContext(Context)
   const {
-    average, standardDeviation, mode, median, lostQuotation, calculateTime, isCalculateProcess, isStarted,
+    average, standardDeviation, mode, median, lostQuotation, calculateTime, isStarted,
     calculateItems,setStarted, isDataAvailable} = context;
   return (
     <div className="general-wrapper">

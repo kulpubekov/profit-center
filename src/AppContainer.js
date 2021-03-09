@@ -33,7 +33,6 @@ const AppContainer = () => {
   const [lostQuotation, setLostQuotation] = useState('');
   const [calculateTime, setCalculateTime] = useState('');
   const [isDataAvailable, setDataAvailable] = useState(false);
-  const [isCalculateProcess, setCalculateProcess] = useState(false);
 
   useEffect(() => {
     let ws = null;
@@ -85,8 +84,9 @@ const AppContainer = () => {
         [getStandardDeviationPromise(arr),
           getAveragePromise(arr),
           getModePromise(arr),
-          getMedianPromise(data)
+          getMedianPromise(data),
         ]);
+
 
       const time = millisToMinutesAndSeconds(new Date() - startDate);
       setCalculateTime(`${time} сек`);
@@ -100,8 +100,8 @@ const AppContainer = () => {
   };
 
   const contextData = {
-    isStarted, setStarted, calculateItems, isDataAvailable, average, isCalculateProcess,
-    standardDeviation, mode, median, lostQuotation, calculateTime, setCalculateProcess
+    isStarted, setStarted, calculateItems, isDataAvailable, average,
+    standardDeviation, mode, median, lostQuotation, calculateTime
   }
 
   return (
