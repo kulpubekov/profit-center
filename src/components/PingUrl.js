@@ -8,6 +8,11 @@ const PingUrl = () => {
   const second = 1000;
 
   const pingAddress = (url) => {
+
+    if(text=== '') {
+      return
+    }
+
     p.ping(url, function (err, data) {
       if (err) {
         setPingResult(`${data} ${err}`)
